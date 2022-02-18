@@ -88,6 +88,8 @@ jobs:
         with:
           path: ${{ github.workspace }}/.ccache
           key: ${{ matrix.target }}-ccache-ffmpeg-${{ steps.setup.outputs.ccacheDate }}
+          restore-keys: |
+            ${{ matrix.target }}-ccache-ffmpeg-
 
       - name: Check for Github Labels
         id: seekingTesters
@@ -188,6 +190,8 @@ jobs:
         with:
           path: ${{ github.workspace }}/.ccache
           key: ${{ matrix.target }}-ccache-deps-${{ steps.setup.outputs.ccacheDate }}
+          restore-keys: |
+            ${{ matrix.target }}-ccache-deps-
 
       - name: Check for Github Labels
         id: seekingTesters
@@ -286,6 +290,8 @@ jobs:
         with:
           path: ${{ github.workspace }}/.ccache
           key: ${{ matrix.target }}-ccache-qt-${{ steps.setup.outputs.ccacheDate }}
+          restore-keys: |
+            ${{ matrix.target }}-ccache-qt-
 
       - name: Check for Github Labels
         id: seekingTesters
