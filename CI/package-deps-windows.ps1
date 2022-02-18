@@ -43,7 +43,6 @@ function Package-OBS-Deps-Main {
         $CurrentDate = Get-Date -UFormat "%Y-%m-%d"
     }
     $FileName = "${ProductName}-${CurrentDate}.tar.gz"
-    $CrossDirBase = "${CheckoutDir}\windows\obs-cross-deps"
     $NativeDirBase = ""
 
     if (Test-Path "${CheckoutDir}\windows\obs-native-deps" -PathType "Container") {
@@ -52,11 +51,7 @@ function Package-OBS-Deps-Main {
         $NativeDirBase = "${CheckoutDir}\windows_native_build_temp"
     }
 
-    if (!(Test-Path "${CrossDirBase}\x86" -PathType "Container")) {
-        Caught-Error "Missing cross-compiled build in ${CrossDirBase}\x86"
-    } elseif (!(Test-Path "${CrossDirBase}\x86_64" -PathType "Container")) {
-        Caught-Error "Missing cross-compiled build in ${CrossDirBase}\x86_64"
-    } elseif (!(Test-Path "${NativeDirBase}\win32" -PathType "Container")) {
+    if (!(Test-Path "${NativeDirBase}\win32" -PathType "Container")) {
         Caught-Error "Missing native build in ${NativeDirBase}\win32"
     } elseif (!(Test-Path "${NativeDirBase}\win64" -PathType "Container")) {
         Caught-Error "Missing native build in ${NativeDirBase}\win64"
@@ -73,39 +68,12 @@ function Package-OBS-Deps-Main {
     )
     Foreach ($Package in $Packages) {
         if ($Package.Arch -eq "x86") {
-            $CrossDir = "${CrossDirBase}\x86"
             $NativeDir = "${NativeDirBase}\win32"
             $FinalDir = "${DepsBuildDir}\win32"
         } elseif ($Package.Arch -eq "x86_64") {
-            $CrossDir = "${CrossDirBase}\x86_64"
             $NativeDir = "${NativeDirBase}\win64"
             $FinalDir = "${DepsBuildDir}\win64"
         }
-
-        Write-Step "Copy $($Package.WinArch)/$($Package.Arch) files..."
-
-        # Copy cross-compiled deps first
-        Write-Step "Copy cross-compiled $($Package.WinArch)/$($Package.Arch) files..."
-        Copy-Item -Path "${CrossDir}\bin" -Destination "${FinalDir}" -Recurse
-        Copy-Item -Path "${CrossDir}\include" -Destination "${FinalDir}" -Recurse
-        Copy-Item -Path "${CrossDir}\licenses" -Destination "${FinalDir}" -Recurse
-
-        Write-Step "Clean up cross-compiled $($Package.WinArch)/$($Package.Arch) files..."
-        # Remove unneeded files before copying native-compiled deps
-        # Make sure symlinks still exist before trying to remove them
-        Remove-Item -Path "${FinalDir}\bin\libmbedtls.dll" -Force
-        Remove-Item -Path "${FinalDir}\bin\libmbedx509.dll" -Force
-        Remove-ItemIfExists "${FinalDir}\bin\libpng16-config"
-        Remove-ItemIfExists "${FinalDir}\bin\libpng-config"
-        Remove-Item -Path "${FinalDir}\bin\mbedcrypto.lib" -Force
-        Remove-Item -Path "${FinalDir}\bin\mbedtls.lib" -Force
-        Remove-Item -Path "${FinalDir}\bin\mbedx509.lib" -Force
-        Remove-Item -Path "${FinalDir}\bin\pngfix.exe" -Force
-        Remove-Item -Path "${FinalDir}\bin\png-fix-itxt.exe" -Force
-        Remove-ItemIfExists "${FinalDir}\bin\srt-ffplay"
-        Remove-Item -Path "${FinalDir}\bin\x264.def" -Force
-        Remove-Item -Path "${FinalDir}\bin\x264.exe" -Force
-        Remove-Item -Path "${FinalDir}\bin\zlib.def" -Force
 
         # Copy native-compiled deps
         Write-Step "Copy native-compiled $($Package.WinArch)/$($Package.Arch) files..."
