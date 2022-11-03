@@ -15,7 +15,19 @@ local -A hashes=(
 )
 
 ## Dependency Overrides
-local -i shared_libs=1
+local script_order=${${(s:-:)0:t:r}[1]}
+
+if (( script_order < 99 )) {
+  if [[ ${target} =~ 'windows'* ]] {
+    local -i shared_libs=0
+  } else {
+    local -i shared_libs=1
+  }
+} else {
+  local -a targets=('windows-x*')
+  local -i shared_libs=1
+  dir="${dir}-shared"
+}
 
 ## Build Steps
 setup() {
